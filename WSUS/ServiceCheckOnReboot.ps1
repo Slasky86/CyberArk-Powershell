@@ -1,4 +1,4 @@
-﻿## Script for å sjekke om CyberArk-tjenesten er kjørende etter oppstart
+﻿## Script to check if the services are running after reboot
 
 $servicename = "PrivateArk Server"
 
