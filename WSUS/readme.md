@@ -37,3 +37,17 @@ The scripts in general does the following when run in the correct order:
 6. Stops the services and removes any temporary firewall rules put in to allow access to SMTP server or WSUS server
 7. Reboots the server if it is pending
 8. Checks the CyberArk services for "Running" status after reboot, and sends a mail if something is wrong.
+
+
+## How to set up these scripts
+
+You can do this in one of two ways:
+
+1. Running the scripts manually at will and when needed
+2. Set up a scheduled task for running the scripts at given intervals.
+
+If you run the scripts with scheduled tasks, I recommend setting up two tasks. One that runs the StartWUUpdate.ps1 script and one that runs the ServiceCheckOnReboot.ps1 script.
+
+The one running the update scripts should be set to match the organizations update strategy. My recommendation in DR or Cluster Vault setups is to do a asynchrounus update of the vaults. This is to prevent updating two nodes at the same time, in case the Windows updates break anything. If they do, you will have a node to fail over to. If you got a Cluster Vault environment with a DR site, I recommend updating one node in each site, and do the other node the following week.
+
+The ServiceCheckOnReboot.ps1 script should be set up to run at each startup of the machine, and whether or not a user has logged on.
