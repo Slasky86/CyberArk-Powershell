@@ -51,3 +51,14 @@ If you run the scripts with scheduled tasks, I recommend setting up two tasks. O
 The one running the update scripts should be set to match the organizations update strategy. My recommendation in DR or Cluster Vault setups is to do a asynchrounus update of the vaults. This is to prevent updating two nodes at the same time, in case the Windows updates break anything. If they do, you will have a node to fail over to. If you got a Cluster Vault environment with a DR site, I recommend updating one node in each site, and do the other node the following week.
 
 The ServiceCheckOnReboot.ps1 script should be set up to run at each startup of the machine, and whether or not a user has logged on.
+
+
+## Required parameters
+
+The scripts have a few required parameters, and if they are supplied with the StartWUUpdate.ps1 script it will propagate to the InstallUpdates.ps1 script. The parameters are as follows:
+
+1. Recipient - A list of recipient emails, separated by comma. Ex: "recipient1@company.com","recipient2@company.com"
+2. SendFrom - The address that the scripts present themselves as. Ex: "VaultUpdateNotifications@company.com"
+3. SMTPServer - The FQDN or IP address of the SMTP server the vault will be using to send the email notifications. Keep in mind that if FQDN is used, the Vault will need to be able to resolve the name
+
+These requirements are also set on the ServiceCheckOnReboot.ps1 script. These parameters can be inserted as a part of the command-line in scheduled tasks.
