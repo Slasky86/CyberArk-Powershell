@@ -1,4 +1,15 @@
-﻿Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5000 -Message "Vault WU installation script started"
+﻿[CmdletBinding()]
+param (
+	[Parameter(Mandatory)]
+	[string[]]$Recipient,
+	[Parameter(Mandatory)]
+	$SendFrom,
+	[Parameter(Mandatory)]
+	$SMTPServer
+)
+
+
+Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5000 -Message "Vault WU installation script started"
 
 function WriteRed($text)
 {
@@ -192,7 +203,7 @@ if($InputPort2)
 }
 $allPorts = $allPorts + $WSUSPort +'"'
 netsh advfirewall firewall add rule name=$WSUSRuleName dir=out action=allow protocol=TCP remoteport=$allPorts remoteip=$WSUSIp
-netsh advfirewall firewall add rule name=SMTP-Out dir=out action=allow protocol=TCP remoteport=25 remoteip=<SMTP-server IP>
+netsh advfirewall firewall add rule name=SMTP-Out dir=out action=allow protocol=TCP remoteport=25 remoteip=$SMTPServer
 
 #-----------------------------------------------------------------------------#
 ###################    Installing windows updates    ##########################
@@ -366,7 +377,7 @@ if ($ErrorCount -in $null, "") {
 
 $mailbody = "Windows Updates installed on $env:computername. `n`n`n$installedupdates updates was installed `n$ErrorCount updates had errors `n$NotInstalledCount updates were not installed"
 
-Send-MailMessage -From '<EnterSenderEmailHere>' -To "<EnterRecipientHere>" -Subject 'CyberArk Vault Windows Update' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer '<EnterSMTPServerHere>'
+Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Windows Update' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
 
 
 
