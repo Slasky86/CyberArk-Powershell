@@ -1,4 +1,14 @@
-﻿Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 4000 -Message "Download-script started"
+﻿[CmdletBinding()]
+param (
+	[Parameter(Mandatory)]
+	[string[]]$Recipient,
+	[Parameter(Mandatory)]
+	$SendFrom,
+	[Parameter(Mandatory)]
+	$SMTPServer
+)
+
+Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 4000 -Message "Download-script started"
 
 function WriteRed($text)
 {
@@ -12,6 +22,7 @@ function TerminateEnv($WSUSRuleName, $wuauservName, $TrustedInstallerName, $Upda
 {
 	#Delete Firewall rule
 	netsh advfirewall firewall delete rule name=$WSUSRuleName dir=out | Out-Null
+	netsh advfirewall firewall delete rule name=SMTP-Out dir=out | Out-Null
 	"Firewall rule deleted."
 	"Ok."
 	""
@@ -162,6 +173,7 @@ if($InputPort2)
 }
 $allPorts = $allPorts + $WSUSPort +'"'
 netsh advfirewall firewall add rule name=$WSUSRuleName dir=out action=allow protocol=TCP remoteport=$allPorts remoteip=$WSUSIp
+netsh advfirewall firewall add rule name=SMTP-Out dir=out action=allow protocol=TCP remoteport=25 remoteip=$SMTPServer
 
 #Downloading windows updates
 ""
@@ -237,8 +249,10 @@ else
 			if(-Not $Downloader.Updates.Item($i).IsDownloaded)
 			{
 				"" + ($i + 1) +": " + $Downloader.Updates.Item($i).Title
+				$mailbody += "$($Downloader.Updates.Item($i).Title) has failed to download on $env:Computername"
 			}
 		}
+		Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Windows Update' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
 	}
 }
 

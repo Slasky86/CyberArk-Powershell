@@ -19,7 +19,7 @@ cd <#path to script files#>
 .\OpeningServices.ps1
 
 # Starts the download from the WSUS server
-.\DownloadUpdatesFromWSUS.ps1
+.\DownloadUpdatesFromWSUS.ps1 -Recipient $Recipient -SendFrom $SendFrom -SMTPServer $SMTPServer
 
 # Starts the installation of the updates and retrieves the RebootRequired status
 $NeedsReboot = .\InstallUpdates.ps1 -Recipient $Recipient -SendFrom $SendFrom -SMTPServer $SMTPServer
@@ -28,7 +28,7 @@ $NeedsReboot = .\InstallUpdates.ps1 -Recipient $Recipient -SendFrom $SendFrom -S
 .\ClosingServices.ps1
 
 # Restarts the server if the $NeedsReboot variable is $true 
-if ($NeedsReboot) {
+if ($NeedsReboot -eq $true) {
 
 Restart-Computer
 

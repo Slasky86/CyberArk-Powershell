@@ -9,46 +9,65 @@ param (
 	$SMTPServer
 )
 
-
-$servicename = "PrivateArk Server"
-
-$service = Get-service -Name $servicename
+netsh advfirewall firewall add rule name=SMTP-Out dir=out action=allow protocol=TCP remoteport=25 remoteip=$SMTPServer
 
 Start-Sleep -Seconds 300
 
-if ($service.Status -ne "Running") {
+$Servicename = "PrivateArk Server"
 
-    try {
+$PrivateArkService = Get-service -Name $servicename
 
-        $DRservice = Get-serivce -name "CyberArk Vault Disaster Recovery"
+try {
 
-        if ($DRservice.status -ne "Running") {
+    $DRservice = Get-service -name "CyberArk Vault Disaster Recovery"
+    $ClusterVaultService = Get-Service -Name "CyberArk Cluster Vault Manager"
 
-            Start-Service "PrivateArk Server" -ErrorAction STOP
+    if ($ClusterVaultService.Status -eq "Running") {
 
-            }
+        if ($PrivateArkService.Status -eq "Running") {
 
-        if ($DRservice.status -eq "Running") {
+            $mailbody = "PrivateArk Service has started on $env:computername after a reboot of the server. This is the primary node"
+            Start-Service "Cyber-Ark Event Notification Engine" -ErrorAction STOP
+            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+            break
+        }
+        
+        if ($PrivateArkService.status -ne "Running" -and $DRservice.Status -ne "Running" -and $ClusterVaultService.Status -eq "Running") {
 
-            $mailbody = "Disaster Recovery service has started on $env:computername."
-            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority NOrmal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
-
+            $mailbody = "Cluster Vault Manager has started on $env:computername after a reboot of the server. This is the standby node in the cluster."
+            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+           
         }
     }
 
-    catch {
+    if ($DRservice.status -ne "Running" -and $ClusterVaultService -in "",$null) {
 
-        $errormessage = $_.Exception.message
-        $mailbody = "PrivateArk Service has not started on $env:computername. Errormessage: $errormessage! Please advice that the service must be started manually for the CyberArk enviroment to work"
-        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+        Start-Service "PrivateArk Server" -ErrorAction STOP
+
+    }
+
+    if ($DRservice.status -eq "Running" -and $ClusterVaultService.Status -ne "Running") {
+
+        $mailbody = "Disaster Recovery service has started on $env:computername."
+        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+            
+    }
+
+    if ($ClusterVaultService -notin "",$null -and $ClusterVaultService.Status -eq "Running" -and $PrivateArkService.status -ne "Running" -and $DRservice.status -eq "Running") {
+
+        $mailbody = "Cluster Vault service has started on $env:computername. This is the DR node"
+        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
 
     }
 }
 
-if ($service.Status -eq "Running") {
+catch {
 
-    $mailbody = "PrivateArk Service has started on $env:computername after a reboot of the server"
-    Start-Service "Cyber-Ark Event Notification Engine" -ErrorAction STOP
+    $errormessage = $_.Exception.message
+    $mailbody = "PrivateArk Service has not started on $env:computername. Errormessage: $errormessage! Please advice that the service must be started manually for the CyberArk enviroment to work"
     Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
-
+       
 }
+
+
+netsh advfirewall firewall delete rule name=SMTP-Out dir=out | Out-Null

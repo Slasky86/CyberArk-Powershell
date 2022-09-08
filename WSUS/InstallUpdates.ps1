@@ -335,16 +335,16 @@ else
 		}
 	}
 	WriteGreen ("" + ($NumberOfUpdate - $NotInstalledCount - $ErrorCount) + " updates installed")
-    Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5003 -Message (($NumberOfUpdate - $NotInstalledCount - $ErrorCount) + " updates installed")
+    Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5003 -Message ("($NumberOfUpdate - $NotInstalledCount - $ErrorCount)" + " updates installed")
 	if($NotInstalledCount -gt 0)
 	{
 		WriteRed ("" + $NotInstalledCount + " updates not installed")
-        Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType error -EventId 5005 -Message ($NotInstalledCount + " updates not installed")
+        Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType error -EventId 5005 -Message ("$NotInstalledCount" + " updates not installed")
 	}
 	if($ErrorCount -gt 0)
 	{
 		WriteRed ("" + $ErrorCount + " updates with errors")
-        Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType error -EventId 5005 -Message ($ErrorCount + " updates with errors")
+        Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType error -EventId 5005 -Message ("$ErrorCount" + " updates with errors")
 	}
 	If ($NeedsReboot)
 	{ 
@@ -353,8 +353,6 @@ else
 	}
 }
 ""
-CloseServices $wuauservName $TrustedInstallerName $UpdateOrchestratorName
-
 $installedupdates = $NumberOfUpdate - $NotInstalledCount - $ErrorCount
 
 if ($installedupdates -in 0, $null ,"") {
@@ -381,7 +379,7 @@ Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Windows
 
 
 
-If ($NeedsReboot) {
+If ($NeedsReboot -eq $true) {
     
     Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5099 -Message "Windows update script finished. A reboot is required, rebooting now!"
     Return $NeedsReboot
@@ -394,6 +392,8 @@ else {
     Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5099 -Message "Windows update script finished."
 
 }
+
+CloseServices $wuauservName $TrustedInstallerName $UpdateOrchestratorName
 
 
 # SIG # Begin signature block
