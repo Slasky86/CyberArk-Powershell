@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ArrayOfConnection>
+  <Connection>
+    <AlternateShell>psm /u &lt;target account&gt;@&lt;addressfield of the target account&gt; /a &lt;FQDN of target server&gt; /c PSM-RDP</AlternateShell>
+    <AuthentificationLevel>WarnMe</AuthentificationLevel>
+    <Url>&lt;FQDN of PSM server or load balanced PSM&gt;</Url>
+    <ConnectionType>RDPConfigured</ConnectionType>
+    <ID>335ed627-3283-4633-a048-03ada8595a10</ID>
+    <KeyboardHook>OnTheRemoteComputer</KeyboardHook>
+    <OpenEmbedded>true</OpenEmbedded>
+    <Stamp>801cacc3-6cbe-4b41-b17a-636912a10f0b</Stamp>
+    <TemplateName>PSM-Template</TemplateName>
+    <RDP>
+      <NetworkLevelAuthentication>false</NetworkLevelAuthentication>
+      <UserName>&lt;your account that can access target account&gt;</UserName>
+    </RDP>
+  </Connection>
+</ArrayOfConnection>
