@@ -225,8 +225,6 @@ Catch
 	return
 }
 
-DeleteFWRule $WSUSRuleName
-
 if($SearcherResult.Count -eq 0)
 {
 	WriteGreen "No updates found"
@@ -384,7 +382,6 @@ If ($NeedsReboot -eq $true) {
     Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5099 -Message "Windows update script finished. A reboot is required, rebooting now!"
     Return $NeedsReboot
 
-
 }
 
 else {
@@ -393,6 +390,7 @@ else {
 
 }
 
+DeleteFWRule $WSUSRuleName
 CloseServices $wuauservName $TrustedInstallerName $UpdateOrchestratorName
 
 
