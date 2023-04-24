@@ -1,4 +1,4 @@
-# How to use Remote Desktop Manager from Devolutions towards Cyberark PSM
+# How to use Remote Desktop Manager from Devolutions free version towards Cyberark PSM
 
 1. Install RDM from Devolutions
 2. Start RDM and log in (either with a free account or an enterprise account)
@@ -19,3 +19,12 @@ The template does not define any credentials as you have to provide these yourse
 ## Requirements
 
 This requires that the vault can authorize your logon request, which means the user has to be a transparent user or a vault user of which you know the password. If its a transparent user, remember to insert the username as it displays in the vault.
+
+# Using Remote Desktop Manager from Devolutions licensed version
+
+If you pay for a license for RDM you can create your own CyberArk dashboard (described here):
+https://kb.devolutions.net/kb_rdm_cyberark_dashboard_configuration.html
+
+https://blog.devolutions.net/2020/10/going-passwordless-with-remote-desktop-manager-and-cyberark/
+
+This allows you to log on to the PVWA with SAML and retrieve your available accounts. This is similar to the PSMClient that CyberArk offers. 
