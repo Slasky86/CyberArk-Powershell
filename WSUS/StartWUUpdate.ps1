@@ -30,6 +30,6 @@ $NeedsReboot = .\InstallUpdates.ps1 -Recipient $Recipient -SendFrom $SendFrom -S
 # Restarts the server if the $NeedsReboot variable is $true 
 if ($NeedsReboot -eq $true) {
 
-Restart-Computer
+    Restart-Computer
 
 }

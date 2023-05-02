@@ -380,7 +380,6 @@ Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Windows
 If ($NeedsReboot -eq $true) {
     
     Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5099 -Message "Windows update script finished. A reboot is required, rebooting now!"
-    Return $NeedsReboot
 
 }
 
@@ -392,7 +391,7 @@ else {
 
 DeleteFWRule $WSUSRuleName
 CloseServices $wuauservName $TrustedInstallerName $UpdateOrchestratorName
-
+Return $NeedsReboot
 
 # SIG # Begin signature block
 # MIIfdQYJKoZIhvcNAQcCoIIfZjCCH2ICAQExDzANBglghkgBZQMEAgEFADB5Bgor

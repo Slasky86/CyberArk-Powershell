@@ -4,7 +4,7 @@
 )
 
 # Get SDDL
-$orgSDDL = Get-ACL ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\" | Select -ExpandProperty SDDL;
+$orgSDDL = Get-ACL ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\" | Select -ExpandProperty SDDL);
 
 Write-Host "Before:"
 $orgSDDL;
