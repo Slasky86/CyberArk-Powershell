@@ -13,14 +13,15 @@ netsh advfirewall firewall add rule name=SMTP-Out dir=out action=allow protocol=
 
 Start-Sleep -Seconds 300
 
-$Servicename = "PrivateArk Server"
-
-$PrivateArkService = Get-service -Name $servicename
+$ServerServicename = "PrivateArk Server"
+$DRServicename = "CyberArk Vault Disaster Recovery"
+$ClusterVaultServiceName = "CyberArk Cluster Vault Manager"
 
 try {
-
-    $DRservice = Get-service -name "CyberArk Vault Disaster Recovery"
-    $ClusterVaultService = Get-Service -Name "CyberArk Cluster Vault Manager"
+    
+    $PrivateArkService = Get-service -Name $ServerServicename
+    $DRservice = Get-service -name $DRServicename
+    $ClusterVaultService = Get-Service -Name $ClusterVaultServiceName
 
     if ($ClusterVaultService.Status -eq "Running") {
 
