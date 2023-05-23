@@ -1,45 +1,50 @@
 ﻿param (
 
-[string]$Principle = ".\ScannerUser"
+    [string]$Principle = ".\ScannerUser",
+    [string[]]$LogNames = ('Security','Application','System')
+
 )
 
-# Get SDDL
-$orgSDDL = Get-ACL ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\" | Select -ExpandProperty SDDL);
 
-Write-Host "Before:"
-$orgSDDL;
+foreach ($LogName in $LogNames) {
 
-# Create ACL
-$acl = New-Object System.Security.AccessControl.RegistrySecurity;
-$acl.SetSecurityDescriptorSddlForm($orgSDDL);
+    # Get SDDL
+    $orgSDDL = Get-ACL ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\"+$LogName) | Select -exp SDDL
 
-# Create ACE
-$ACE = New-Object System.Security.AccessControl.RegistryAccessRule $Principle,"FullControl","ContainerInherit,ObjectInherit","None","Allow"
+    Write-Host 'Before:'
+    $orgSDDL
 
-# Combine ACL
-$acl.AddAccessRule($ACE)
-$newSDDL = $acl.Sddl;
+    # Create ACL
+    $acl = New-Object System.Security.AccessControl.RegistrySecurity
+    $acl.SetSecurityDescriptorSddlForm($orgSDDL)
 
-Write-host "After:"
-$newSDDL
+    # Create ACE
+    $ACE = New-Object System.Security.AccessControl.RegistryAccessRule $Principle,"FullControl","ContainerInherit,ObjectInherit","None","Allow"
 
-# Store SDDL
-Set-Acl -Path ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\") -AclObject $acl;
+    # Combine ACL
+    $acl.AddAccessRule($ACE)
+    $newSDDL = $acl.Sddl
 
-# Compose Key
+    Write-Host "After:"
+    $newSDDL
 
-$logpath = ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\")
-if (Test-Path $logpath) {
+    #Store SDDL
+    Set-Acl -Path ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\"+$LogName) -AclObject $acl
 
-    $acl = Get-Acl $logpath
-    $ace = New-Object System.Security.AccessControl.RegistryAccessRule $Principle,"FullControl","ContainerInherit,ObjectInherit","None","Allow"
-    $acl.AddAccessRule($ace)
-    Set-Acl $logpath $acl
+    #Compose Key
+    $LogPath = ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\"+$LogName) 
+    if (Test-Path $LogPath) {
 
-}
+        $acl = Get-Acl $LogPath
+        $ace = New-Object System.Security.AccessControl.RegistryAccessRule $Principle,"FullControl","ContainerInherit,ObjectInherit","None","Allow"
+        $acl.AddAccessRule($ACE)
+        Set-Acl $LogPath $acl
 
-else {
+    }
 
-    Write-Error "Cannot access EventLog entry in registry"
+    else {
 
+        Write-Error "Cannot access log $LogName"
+
+    }
 }
