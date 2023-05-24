@@ -1,6 +1,6 @@
 ﻿param (
 
-    [string]$Principle = ".\ScannerUser",
+    [string]$Principle = "<CPM hostname>\ScannerUser",
     [string[]]$LogNames = ('Security','Application','System')
 
 )
@@ -9,7 +9,7 @@
 foreach ($LogName in $LogNames) {
 
     # Get SDDL
-    $orgSDDL = Get-ACL ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\"+$LogName) | Select -exp SDDL
+    $orgSDDL = Get-ACL ("HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\"+$LogName) | Select-Object -ExpandProperty SDDL
 
     Write-Host 'Before:'
     $orgSDDL
