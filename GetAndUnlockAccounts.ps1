@@ -1,13 +1,4 @@
-﻿
-# Enter your PVWA base URL here, without /PasswordVault
-$PVWAURL = "<PVWAURL>"
-
-# Credentials for user with the correct permissions to search in safes and unlock accounts
-$Global:Creds = Get-Credential
-
-
-# Function for retrieving accounts and potentially unlock them
-function Unlock-PASAccount {
+﻿function Unlock-LockedPASAccount {
 
     [CmdletBinding(DefaultParameterSetName="Safename")]
     param (
@@ -15,12 +6,104 @@ function Unlock-PASAccount {
 	[string]$Safename,
     [Parameter(Mandatory, ParameterSetName="All")]
 	[switch]$All,
+    [Parameter(Mandatory)]
+    [string]$PVWAURL,
+    [Parameter(Mandatory)]
+    [PSCredential]$Credential,
     [Parameter()]
     [switch]$Unlock
     )
 
+<#	
+
+.NOTES
+    ===========================================================================
+    Created on:   	13.06.23
+    Created by:   	Slasky86
+    Organization: 	
+    Filename:     	GetAndUnlockAccounts.ps1
+    Version:        0.8
+    ===========================================================================
+    
+.SYNOPSIS
+    This function searches for locked accounts and unlocks them.
+
+.DESCRIPTION
+    This function is made to retrieve accounts, based on safe or all
+    available accounts. It utilizes the psPAS powershell module for most
+    of the operations, except the unlocking operation, which utilizes an
+    API thats not readily available in the main branch of psPAS at this moment.	
+            
+
+.CHANGELOG
+    Version 0.1
+    * Initial creation
+    * Function to find all locked accounts
+
+    Version 0.5
+    * Added option to search by safe
+    * Added unlock option
+
+    Version 0.8
+    * Finetuning the function
+    * Adding proper parameters
+    * Making this fancy thing
+
+.EXAMPLE
+PS> Unlock-Account -Credential $Credential -PVWAURL $PVWAURL -All
+or
+PS> Unlock-Account -Credential (Get-Credential) -PVWAURL "https://pvwa.domain.com" -All
+
+Retrieves all accounts that are locked
+
+.EXAMPLE
+PS> Unlock-Account -Credential $Credential -PVWAURL $PVWAURL -All -Unlock
+or
+PS> Unlock-Account -Credential (Get-Credential) -PVWAURL "https://pvwa.domain.com" -All -Unlock
+
+Retrieves all accounts that are locked, and unlocks them
+
+.EXAMPLE
+PS> Unlock-Account -Credential $Credential -PVWAURL $PVWAURL -SafeName $Safename
+or
+PS> Unlock-Account -Credential (Get-Credential) -PVWAURL "https://pvwa.domain.com" -Safename "DemoSafe"
+
+Retrieves all accounts in the defined safe
+
+.EXAMPLE
+PS> Unlock-Account -Credential $Credential -PVWAURL $PVWAURL -SafeName $Safename -Unlock
+or
+PS> Unlock-Account -Credential (Get-Credential) -PVWAURL "https://pvwa.domain.com" -Safename "DemoSafe" -Unlock
+
+Retrieves all accounts in the defined safe and unlocks them
+
+#>
+
+    # Check if psPAS is installed, and if not, install it
+
+    try {
+
+        $psPAS = Get-Module -ListAvailable -Name "psPAS"
+
+        if ($psPAS -in "",$null) {
+
+            Write-Host -ForegroundColor Green "Trying to install the psPAS powershell module..."
+            Install-Module -Name "psPAS" -Scope CurrentUser -AllowClobber -Force
+            Write-Host -ForegroundColor Green "Installation successful!"
+
+        }
+    }
+
+    catch {
+
+        Write-Error $_.Exception.Message
+        Write-Error "Module installation failed. Script will now exit"
+        Exit
+
+    }
+
     # Start a new PAS Session
-    New-PASSession -Credential $creds -BaseURI $PVWAURL -concurrentSession $true
+    New-PASSession -Credential $Credential -BaseURI $PVWAURL -concurrentSession $true
 
     # Arraylist for Account details of retrieved PAS Accounts
     $AccountsDetails = New-object System.Collections.ArrayList
@@ -78,8 +161,8 @@ function Unlock-PASAccount {
         
         # Authentication body for the REST Call
         $body = @{
-            "username"= $Creds.UserName;
-            "password"= ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Creds.Password)));
+            "username"= $Credential.UserName;
+            "password"= ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credential.Password)));
             "concurrentSession"= "true"
         }
 
@@ -121,4 +204,5 @@ function Unlock-PASAccount {
 }
 
 # Command to run the function
-Unlock-PASAccount -All -Unlock
+# Unlock-LockedPASAccount -All -Unlock
+
