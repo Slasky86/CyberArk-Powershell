@@ -1,9 +1,9 @@
 ﻿# BaseURL of PVWA without the /PasswordVault
 $PVWAURL = "<PVWAURL>"
 
-# Username and password of account that has permissions to view the accounts
+# Username and password of EPVUser that has permissions to view the accounts
 # Username are separated with a comma ("User1","User2","User3")
-$Username = ""
+$EPVUser = ""
 $Password = ""
 $usernames = @("")
 $csvpath = "C:\Temp"
@@ -12,7 +12,7 @@ $Password = ConvertTo-SecureString $Password -AsPlainText -Force
 
 
 # Creating the credentials object for authentication
-$Credential = New-Object System.Management.Automation.PSCredential($Username,$Password)
+$Credential = New-Object System.Management.Automation.PSCredential($EPVuser,$Password)
 
 $body = @{
 
