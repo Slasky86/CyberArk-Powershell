@@ -2,6 +2,7 @@
 $PVWAURL = "<PVWAURL>"
 
 # Username and password of account that has permissions to view the accounts
+# Username are separated with a comma ("User1","User2","User3")
 $Username = ""
 $Password = ""
 $usernames = @("")
