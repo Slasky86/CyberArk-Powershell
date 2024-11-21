@@ -17,7 +17,7 @@ If (Get-Service $UpdateOrchestratorName -ErrorAction SilentlyContinue) {
 "Windows update services enabled"
 
 ""
-"*** Opening Sevices Finised ***"
+"*** Opening Sevices Finished ***"
 # SIG # Begin signature block
 # MIIfdgYJKoZIhvcNAQcCoIIfZzCCH2MCAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG

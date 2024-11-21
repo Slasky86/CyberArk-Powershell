@@ -87,7 +87,7 @@ Catch
 }
 
 ""
-"*** Configuring WSUS server Finised ***"
+"*** Configuring WSUS server Finished ***"
 # SIG # Begin signature block
 # MIIfdgYJKoZIhvcNAQcCoIIfZzCCH2MCAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG

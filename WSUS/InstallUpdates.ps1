@@ -79,7 +79,7 @@ function CloseServices($wuauservName, $TrustedInstallerName, $UpdateOrchestrator
 		}
 	}
 	""
-	WriteGreen "***** Windows Updates Installer Finised *****"
+	WriteGreen "***** Windows Updates Installer Finished *****"
 }
 function CheckPort($portNumber)
 {
@@ -359,19 +359,13 @@ if ($installedupdates -in 0, $null ,"") {
 
 }
 
-if ($NumberOfUpdate -in $null, "") {
+else {
 
-    $NumberOfUpdate = 0
-
-}
-
-if ($ErrorCount -in $null, "") {
-
-    $ErrorCount = 0
+	$mailbody = "Windows Updates installed on $env:computername. `n`n`n$installedupdates updates was installed `n$ErrorCount updates had errors `n$NotInstalledCount updates were not installed"
 
 }
 
-$mailbody = "Windows Updates installed on $env:computername. `n`n`n$installedupdates updates was installed `n$ErrorCount updates had errors `n$NotInstalledCount updates were not installed"
+
 
 Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Windows Update' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
 

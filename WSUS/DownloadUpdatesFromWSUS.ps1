@@ -49,7 +49,7 @@ function TerminateEnv($WSUSRuleName, $wuauservName, $TrustedInstallerName, $Upda
 	"Windows update services disabled."
 	"Ok."
 	""
-	WriteGreen "***** Windows Updates Downloader Finised *****"
+	WriteGreen "***** Windows Updates Downloader Finished *****"
 }
 function CheckPort($portNumber)
 {
