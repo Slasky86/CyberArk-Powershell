@@ -9,7 +9,7 @@ param (
 	[Parameter()]
 	$SMTPServer = "",
 	[Parameter()]
-	$automaticReboot = $false
+	[bool]$automaticReboot = $false
 )
 
 
