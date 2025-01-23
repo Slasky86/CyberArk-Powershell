@@ -6,8 +6,7 @@ The scripts sends email notifications as well as write to the Windows Event View
 
 ## Prerequisites
 
-For the Windows Event Viewer logging to work, you need to create a new log source. This is done by typing this in an administrative powershell window on each vault
-the scripts run on:
+For the Windows Event Viewer logging to work, you need to create a new log source. This is done by typing this in an administrative powershell window on each vault the scripts run on:
 
     New-EventLog -LogName Application -Source "VaultWUUpdate"
   
@@ -33,7 +32,7 @@ The scripts in general does the following when run in the correct order:
 4. Sends an email of the statistics and writes to the Event Viewer
 5. Checks if the server has a pending reboot
 6. Stops the services and removes any temporary firewall rules put in to allow access to SMTP server or WSUS server
-7. Reboots the server if it is pending
+7. Reboots the server if automatic reboot is selected. Otherwise it will just print to console and event viewer that the server needs a reboot
 8. Checks the CyberArk services for "Running" status after reboot, and sends a mail if something is wrong.
 
 
@@ -51,12 +50,13 @@ The task running the update scripts should be set to match the organizations upd
 The ServiceCheckOnReboot.ps1 script should be set up to run at each startup of the machine, and whether or not a user has logged on.
 
 
-## Required parameters
+## Optional parameters
 
 The scripts have a few required parameters, and if they are supplied with the StartWUUpdate.ps1 script it will propagate to the InstallUpdates.ps1 script. The parameters are as follows:
 
 1. Recipient - A list of recipient emails, separated by comma. Ex: "recipient1@company.com","recipient2@company.com"
 2. SendFrom - The address that the scripts present themselves as. Ex: "VaultUpdateNotifications@company.com"
 3. SMTPServer - The FQDN or IP address of the SMTP server the vault will be using to send the email notifications. Keep in mind that if FQDN is used, the Vault will need to be able to resolve the name
+4. AutomaticReboot - A boolean value (default false) whether or not the server should do an automatic reboot after updates have been installed and a reboot is expected
 
-These requirements are also set on the ServiceCheckOnReboot.ps1 script. These parameters can be inserted as a part of the command-line in scheduled tasks.
+These parameters are also set on the ServiceCheckOnReboot.ps1 script, except the AutomaticReboot one. These parameters can be inserted as a part of the command-line in scheduled tasks.
