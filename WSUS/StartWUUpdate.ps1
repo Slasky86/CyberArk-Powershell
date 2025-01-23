@@ -2,12 +2,14 @@
 
 [CmdletBinding()]
 param (
-	[Parameter(Mandatory)]
-	[string[]]$Recipient,
-	[Parameter(Mandatory)]
-	$SendFrom,
-	[Parameter(Mandatory)]
-	$SMTPServer
+	[Parameter()]
+	[string[]]$Recipient = "",
+	[Parameter()]
+	$SendFrom = "",
+	[Parameter()]
+	$SMTPServer = "",
+	[Parameter()]
+	$automaticReboot = $false
 )
 
 
@@ -28,8 +30,20 @@ $NeedsReboot = .\InstallUpdates.ps1 -Recipient $Recipient -SendFrom $SendFrom -S
 .\ClosingServices.ps1
 
 # Restarts the server if the $NeedsReboot variable is $true 
-if ($NeedsReboot -eq $true) {
+if ($NeedsReboot -eq $true -and $automaticReboot -eq $true) {
 
     Restart-Computer
+
+}
+
+if ($NeedsReboot -eq $true -and $automaticReboot -eq $false) {
+
+	Write-Warning -Message "A reboot is required for the updates to finish"
+
+}
+
+else {
+
+	Write-Warning -Message "Updates finished installing, no reboot is required"
 
 }
