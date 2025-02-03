@@ -13,61 +13,113 @@ netsh advfirewall firewall add rule name=SMTP-Out dir=out action=allow protocol=
 
 Start-Sleep -Seconds 300
 
-$ServerServicename = "PrivateArk Server"
-$DRServicename = "CyberArk Vault Disaster Recovery"
+$ServerServiceName = "PrivateArk Server"
+$DRServiceName = "CyberArk Vault Disaster Recovery"
 $ClusterVaultServiceName = "CyberArk Cluster Vault Manager"
 
-try {
-    
-    $PrivateArkService = Get-service -Name $ServerServicename
-    $DRservice = Get-service -name $DRServicename
-    $ClusterVaultService = Get-Service -Name $ClusterVaultServiceName
 
-    if ($ClusterVaultService.Status -eq "Running") {
+$ClusterVaultService = Get-Service -Name $ClusterVaultServiceName -ErrorAction SilentlyContinue
+$PrivateArkService = Get-service -Name $ServerServiceName -ErrorAction SilentlyContinue
+$DRservice = Get-service -name $DRServiceName -ErrorAction SilentlyContinue
+$ClusterVaultService = Get-Service -Name $ClusterVaultServiceName -ErrorAction SilentlyContinue
 
-        if ($PrivateArkService.Status -eq "Running") {
+if ($ClusterVaultService -notin "",$null) {
 
-            $mailbody = "PrivateArk Service has started on $env:computername after a reboot of the server. This is the primary node"
-            Start-Service "Cyber-Ark Event Notification Engine" -ErrorAction STOP
-            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
-            break
-        }
-        
-        if ($PrivateArkService.status -ne "Running" -and $DRservice.Status -ne "Running" -and $ClusterVaultService.Status -eq "Running") {
+    try {
 
-            $mailbody = "Cluster Vault Manager has started on $env:computername after a reboot of the server. This is the standby node in the cluster."
-            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
-           
-        }
-    }
+        if ($ClusterVaultService.Status -eq "Running") {
 
-    if ($DRservice.status -ne "Running" -and $ClusterVaultService -in "",$null) {
+            if ($PrivateArkService.Status -eq "Running") {
 
-        Start-Service "PrivateArk Server" -ErrorAction STOP
-
-    }
-
-    if ($DRservice.status -eq "Running" -and $ClusterVaultService.Status -ne "Running") {
-
-        $mailbody = "Disaster Recovery service has started on $env:computername."
-        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+                $mailbody = "PrivateArk Service has started on $env:computername after a reboot of the server. This is the primary node"
+                Start-Service "Cyber-Ark Event Notification Engine" -ErrorAction STOP
+                Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+                break
+            }
             
+            if ($PrivateArkService.status -ne "Running" -and $DRservice.Status -ne "Running" -and $ClusterVaultService.Status -eq "Running") {
+
+                $mailbody = "Cluster Vault Manager has started on $env:computername after a reboot of the server. This is the standby node in the cluster."
+                Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+            
+            }
+
+            if ($ClusterVaultService.Status -eq "Running" -and $PrivateArkService.status -ne "Running" -and $DRservice.status -eq "Running") {
+
+                $mailbody = "Cluster Vault service has started on $env:computername. This is the DR node"
+                Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+    
+            }
+        }
     }
 
-    if ($ClusterVaultService -notin "",$null -and $ClusterVaultService.Status -eq "Running" -and $PrivateArkService.status -ne "Running" -and $DRservice.status -eq "Running") {
+    catch {
 
-        $mailbody = "Cluster Vault service has started on $env:computername. This is the DR node"
-        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
-
+        $errormessage = $_.Exception.message
+        $mailbody = "PrivateArk Service has not started on $env:computername. Errormessage: $errormessage! Please advice that the service must be started manually for the CyberArk enviroment to work"
+        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+        
     }
+
 }
 
-catch {
+if ($ClusterVaultService -in "",$null) {
 
-    $errormessage = $_.Exception.message
-    $mailbody = "PrivateArk Service has not started on $env:computername. Errormessage: $errormessage! Please advice that the service must be started manually for the CyberArk enviroment to work"
-    Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
-       
+    try {
+
+        if ($DRservice.status -ne "Running" -and $PrivateArkService.status -eq "Running") {
+
+            $mailbody = "PrivateArk Service has started on $env:computername."
+            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+            
+
+        }
+    }
+
+    catch {
+
+        $errormessage = $_.Exception.message
+        $mailbody = "PrivateArk Service has not started on $env:computername. Errormessage: $errormessage! Check logs and verify service"
+        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+        
+
+    }
+
+    try {
+
+        if ($DRservice.status -ne "Running" -and $PrivateArkService.status -ne "Running") {
+
+            Start-Service "PrivateArk Server" -ErrorAction STOP
+
+        }
+    }
+
+    catch {
+
+        $errormessage = $_.Exception.message
+        $mailbody = "PrivateArk Service has not started on $env:computername. Errormessage: $errormessage! Check logs and verify service"
+        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+        
+
+    }
+
+    try {
+
+        if ($DRservice.status -eq "Running" -and $PrivateArkService.Status -ne "Running") {
+
+            $mailbody = "Disaster Recovery service has started on $env:computername."
+            Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority Normal -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+                
+        }
+    }
+
+    catch {
+
+        $errormessage = $_.Exception.message
+        $mailbody = "One or more of the services on $env:computername is not running as expected. Errormessage: $errormessage! Check logs and verify service"
+        Send-MailMessage -From $SendFrom -To $Recipient -Subject 'CyberArk Vault Service' -Body $mailbody -Priority High -DeliveryNotificationOption OnSuccess, OnFailure -SmtpServer $SMTPServer
+        
+    }
 }
 
 
