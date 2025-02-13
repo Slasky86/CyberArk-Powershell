@@ -230,7 +230,7 @@ else
 				$ErrorCount++
 				If($_ -match "HRESULT: 0x80240044")
 				{
-					WriteRed "Your security policy doesn't allow a non-administator idendity to perform this task"
+					WriteRed "Your security policy doesn't allow a non-administator identity to perform this task"
 				}
 				else
 				{
@@ -279,6 +279,7 @@ else
 			$log
 		}
 	}
+	$installedUpdates = ($NumberOfUpdate - $NotInstalledCount - $ErrorCount)
 	WriteGreen ("" + ($NumberOfUpdate - $NotInstalledCount - $ErrorCount) + " updates installed")
 	Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5003 -Message ("($NumberOfUpdate - $NotInstalledCount - $ErrorCount)" + " updates installed")
 	if($NotInstalledCount -gt 0)
@@ -299,7 +300,7 @@ else
 }
 ""
 
-if ($installedupdates -in 0, $null ,"") {
+if ($installedUpdates -in 0, $null ,"") {
 
     $mailbody = "No Windows Updates installed on $env:computername."
 
