@@ -279,7 +279,9 @@ else
 			$log
 		}
 	}
+	
 	$installedUpdates = ($NumberOfUpdate - $NotInstalledCount - $ErrorCount)
+
 	WriteGreen ("" + ($NumberOfUpdate - $NotInstalledCount - $ErrorCount) + " updates installed")
 	Write-EventLog -LogName Application -Source "VaultWUUpdate" -EntryType Information -EventId 5003 -Message ("($NumberOfUpdate - $NotInstalledCount - $ErrorCount)" + " updates installed")
 	if($NotInstalledCount -gt 0)
