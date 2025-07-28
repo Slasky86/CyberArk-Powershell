@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RDCMan programVersion="2.93" schemaVersion="3">
+  <file>
+    <credentialsProfiles>
+    </credentialsProfiles>
+    <properties>
+      <expanded>True</expanded>
+      <name>Servers</name>
+    </properties>
+    <server>
+      <properties>
+        <displayName>&lt;Descriptive displayname&gt;</displayName>
+        <name>&lt;subdomain&gt;.rdp.cyberark.cloud</name>
+      </properties>
+      <logonCredentials inherit="None">
+        <profileName scope="Local">Custom</profileName>
+        <userName>secureaccess /i &lt;Cyberark cloud user&gt; /s &lt;subdomain&gt; /d &lt;domain FQDN of the target server&gt; /a &lt;FQDN of the target server&gt;</userName>
+        <password />
+        <domain />
+      </logonCredentials>
+      <gatewaySettings inherit="None">
+        <enabled>True</enabled>
+        <hostName>&lt;subdomain&gt;.rdp.cyberark.cloud:443</hostName>
+        <logonMethod>NTLM</logonMethod>
+        <localBypass>False</localBypass>
+        <credSharing>True</credSharing>
+        <profileName scope="Local">Custom</profileName>
+        <userName>secureaccess</userName>
+        <password />
+        <domain />
+      </gatewaySettings>
+      <displaySettings inherit="None">
+        <thumbnailScale>1</thumbnailScale>
+        <smartSizeDockedWindows>Scale</smartSizeDockedWindows>
+        <smartSizeUndockedWindows>Scale</smartSizeUndockedWindows>
+      </displaySettings>
+    </server>
+  </file>
+  <connected />
+  <favorites />
+  <recentlyUsed />
+</RDCMan>
