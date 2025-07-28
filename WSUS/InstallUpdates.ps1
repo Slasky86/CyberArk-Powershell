@@ -332,9 +332,6 @@ else {
 
 }
 
-WriteGreen "**** Removing firewall rule(s) *****"
-DeleteFWRule $WSUSRuleName
-
 WriteGreen "***** Windows Updates Installer Finished *****"
 
 #-----------------------------------------------------------------------------#
@@ -355,6 +352,9 @@ if ($?)
 
 ""
 WriteGreen "***** Reporting back to the WSUS server finished *****"
+
+WriteGreen "**** Removing firewall rule(s) *****"
+DeleteFWRule $WSUSRuleName
 
 return $NeedsReboot
 
